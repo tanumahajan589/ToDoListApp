@@ -1,5 +1,9 @@
 pipeline {
     agent any 
+    tools {
+        maven 'Maven_3.8.4'
+        java 'JDK_11'
+    }
     environment {
         DOCKER_IMAGE = 'todo-list-app:latest'
         REGISTRY = 'tanumahajan886/todo-list-app'
