@@ -1,0 +1,84 @@
+pipeline {
+    agent any 
+    environment {
+        DOCKER_IMAGE = 'todo-list-app:latest'
+        REGISTRY = 'tanumahajan886/todo-list-app'
+    }
+    stages{
+        stage('checkout code') {
+            steps {
+                git branch: 'main' , url: 'https://github.com/tanumahajan589/ToDoListApp'
+            }
+            
+            
+        }
+        stage(build) {
+            steps {
+                script {
+                    echo " Application building using Maven..."
+                    sh 'mvn clean package'
+                }
+
+            }
+        }
+        stage(test) {
+            steps {
+                script {
+                    echo "Running unit tests"
+                    sh 'mvn test'
+                }
+            }
+        }
+        stage('Dockerize') {
+            steps {
+                script {
+                    echo " Building docker image"
+                    docker build -t $DOCKER_IMAGE .
+                    docker tag $DOCKER_IMAGE $REGISTRY
+                }
+            }
+
+        }
+        stage('push image') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'docker-hub-token' variable: 'DOCKER_TOKEN')])
+                    echo " Pushing image to docker hub"
+                    sh '''
+                    echo "$DOCKER_TOKEN" | docker login -u tanumahajan886 --password-stdin
+                    docker push $REGISTRY
+                    '''
+
+                }
+
+            }
+        
+        }
+        stage('Deploy to docker host') {
+            steps {
+                script {
+                    echo "Deploying Docker container to host..."
+                    sh '''
+                    ssh -o StrictHostKeyCheck=no ubuntu@3.110.54.130 "
+                    docker pull $Registry &&
+                    docker stop todo-list-app || true &&
+                    docker rm todo-list-app || true &&
+                    docker run -d --name todo-list-app -p 8080:8080 $Registry
+                    "
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline execution completed!'
+        }
+        success {
+            echo 'Application deployed successfully!'
+        }
+        failure {
+            echo 'Pipeline execution failed.'
+        }
+    }
+}
