@@ -2,7 +2,7 @@ pipeline {
     agent any 
     tools {
         maven 'Maven'
-        java 'Java'
+        jdk 'Java'
     }
     environment {
         DOCKER_IMAGE = 'todo-list-app:latest'
