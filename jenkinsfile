@@ -37,8 +37,10 @@ pipeline {
             steps {
                 script {
                     echo " Building docker image"
+                    sh '''
                     docker build -t $DOCKER_IMAGE .
                     docker tag $DOCKER_IMAGE $REGISTRY
+                    '''
                 }
             }
 
