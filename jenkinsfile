@@ -70,10 +70,10 @@ pipeline {
                         sh '''
                         ssh -o StrictHostKeyChecking=no ubuntu@13.233.121.198  '
                             echo 'Registry URL: $REGISTRY' &&
-                            docker pull $REGISTRY &&
-                            docker stop todo-list-app || true &&
-                            docker rm todo-list-app || true &&
-                            docker run -d --name todo-list-app -p 8080:8080 $REGISTRY
+                            sudo docker pull $REGISTRY &&
+                            sudo docker stop todo-list-app || true &&
+                            sudo docker rm todo-list-app || true &&
+                            sudo docker run -d --name todo-list-app -p 8080:8080 $REGISTRY
                         '
                         '''
                     }
