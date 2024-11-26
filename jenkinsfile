@@ -66,14 +66,18 @@ pipeline {
             steps {
                 script {
                     echo "Deploying Docker container to host..."
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@13.233.121.198  '
-                    docker pull $REGISTRY &&
-                    docker stop todo-list-app || true &&
-                    docker rm todo-list-app || true &&
-                    docker run -d --name todo-list-app -p 8080:8080 $REGISTRY
-                    '
-                    '''
+                    sshagent(['JenkinsKey']) {
+                        sh '''
+                        ssh -o StrictHostKeyChecking=no ubuntu@13.233.121.198  '
+                        docker pull $REGISTRY &&
+                        docker stop todo-list-app || true &&
+                        docker rm todo-list-app || true &&
+                        docker run -d --name todo-list-app -p 8080:8080 $REGISTRY
+                        '
+                        '''
+                    }
+
+                    
                 }
             }
         }
