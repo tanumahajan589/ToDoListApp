@@ -1,0 +1,18 @@
+---
+- name: Deploy ToDo Application
+  hosts: all
+  become: true
+  tasks:
+    - name: Pull Docker image
+      command: docker pull tanumahajan886/todo-list-app
+
+    - name: Stop existing container
+      command: docker stop todo-list-app
+      ignore_errors: yes
+
+    - name: Remove existing container
+      command: docker rm todo-list-app
+      ignore_errors: yes
+
+    - name: Run Docker container
+      command: docker run -d --name todo-list-app -p 8080:8080 tanumahajan886/todo-list-app
