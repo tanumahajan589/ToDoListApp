@@ -3,10 +3,13 @@ pipeline {
     tools {
         maven 'Maven'
         jdk 'Java'
+        ansible 'Ansible'
     }
     environment {
         DOCKER_IMAGE = 'todo-list-app:latest'
         REGISTRY = 'tanumahajan886/todo-list-app'
+        TERRAFORM_WORKSPACE = infra
+        ANSIBLE_PLAYBOOK = deploy.yml
     }
     stages{
         stage('checkout code') {
@@ -45,24 +48,32 @@ pipeline {
             }
 
         }
-        stage('push image') {
+        stage('Infrastructure provisioning') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_TOKEN')]) {
-                        echo " Pushing image to docker hub"
-                        sh '''
-                        echo "$DOCKER_TOKEN" | docker login -u tanumahajan886 --password-stdin
-                        docker push $REGISTRY
-                        '''
-                    }
-                    
-
+                    echo "provisioning infrastructure..."
+                    dir(${TERRAFORM_WORKSPACE})
+                    withCredentials([usernamePassword(credentialsId: 'aws-credentials', usernameVariable: 'AKIAQLSIVGNFSGZBBNMT' , passwordVariable: 'f8b1t+lC5c3zzsnluEhsOWozeFVzwwTu2769SEaH')])
+                    sh '''
+                    terraform init
+                    terraform plan -out=tfplan
+                    terraform apply -auto-approve tfplan
+                    '''
                 }
-
             }
-        
+
         }
-        stage('Deploy to docker host') {
+        stage('deploy with ansible') {
+            steps {
+                script {
+                    echo " deploying application with ansible"
+                    ansiblePlaybook(credentialsId: 'Jenkinskey' , playbook: "$ANSIBLE_PLAYBOOK")
+                }
+            }
+           
+        }
+        
+        /* stage('Deploy to docker host') {
             steps {
                 script {
                     echo "Deploying Docker container to host..."
@@ -81,7 +92,7 @@ pipeline {
                     
                 }
             }
-        }
+        } */
     }
     post {
         always {
