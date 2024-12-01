@@ -8,8 +8,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'todo-list-app:latest'
         REGISTRY = 'tanumahajan886/todo-list-app'
-        TERRAFORM_WORKSPACE = infra
-        ANSIBLE_PLAYBOOK = deploy.yml
+        TERRAFORM_WORKSPACE = 'ToDoListApp'
+        ANSIBLE_PLAYBOOK = 'deploy.yml'
     }
     stages{
         stage('checkout code') {
