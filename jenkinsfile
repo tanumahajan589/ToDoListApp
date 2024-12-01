@@ -52,7 +52,7 @@ pipeline {
             steps {
                 script {
                     echo "provisioning infrastructure..."
-                    dir(${TERRAFORM_WORKSPACE}) 
+                    dir("${TERRAFORM_WORKSPACE}") 
                     withAWS(credentials: 'aws-credentials') {
                     sh '''
                     terraform init
